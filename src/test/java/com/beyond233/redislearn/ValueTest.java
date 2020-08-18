@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.BoundValueOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
@@ -48,6 +49,17 @@ class ValueTest {
         Thread.sleep(4000);
         System.err.println("key是否存活： " + redisTemplate.hasKey("a"));
         System.err.println("key剩余存活时间：" + redisTemplate.getExpire("a", TimeUnit.SECONDS));
+    }
+
+    /**
+     * bound单个key进行操作
+     */
+    @Test
+    public void bound() {
+        BoundValueOperations ops = stringRedisTemplate.boundValueOps("name");
+        Object o = ops.get();
+        System.err.println(o);
+
     }
 
 }
