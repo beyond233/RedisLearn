@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.BoundValueOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -59,7 +60,16 @@ class ValueTest {
         BoundValueOperations ops = stringRedisTemplate.boundValueOps("name");
         Object o = ops.get();
         System.err.println(o);
+    }
 
+    @Test
+    public void test() {
+        RedisConnection redisConn = operator.getConnection();
+        try {
+            System.err.println(operator.get("name"));
+        } finally {
+            operator.releaseConnection(redisConn);
+        }
     }
 
 }

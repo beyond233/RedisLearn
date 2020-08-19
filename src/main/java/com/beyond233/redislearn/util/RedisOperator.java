@@ -1,27 +1,46 @@
 package com.beyond233.redislearn.util;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisConnectionUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @author XuJie
- * @date 2020/8/13 19:21
+ * redis操作封装类
  */
 @Component
 public class RedisOperator {
 
-//    @Autowired
-//    private RedisTemplate<String, Object> redisTemplate;
 
-    @Autowired
+    @Resource(name = "stringRedisTemplate")
     private StringRedisTemplate redisTemplate;
 
-    // Key（键），简单的key-value操作
+
+    /**
+     * 获取redis连接
+     */
+    public RedisConnection getConnection() {
+        return Objects.requireNonNull(redisTemplate.getConnectionFactory()).getConnection();
+    }
+
+    /**
+     * 释放redis连接
+     */
+    public void releaseConnection(RedisConnection conn) {
+        if (conn != null && redisTemplate != null) {
+            RedisConnectionFactory factory = redisTemplate.getConnectionFactory();
+            if (factory != null) {
+                RedisConnectionUtils.releaseConnection(conn, factory, false);
+            }
+        }
+    }
 
     /**
      * 实现命令：TTL key，以秒为单位，返回给定 key的剩余生存时间(TTL, time to live)。
@@ -58,7 +77,6 @@ public class RedisOperator {
         redisTemplate.delete(key);
     }
 
-    // String（字符串）
 
     /**
      * 实现命令：SET key value，设置一个key-value（将字符串值 value关联到 key）
@@ -83,7 +101,6 @@ public class RedisOperator {
         return (String) redisTemplate.opsForValue().get(key);
     }
 
-    // Hash（哈希表）
 
     /**
      * 实现命令：HSET key field value，将哈希表 key中的域 field的值设为 value
@@ -113,7 +130,6 @@ public class RedisOperator {
         return redisTemplate.opsForHash().entries(key);
     }
 
-    // List（列表）
 
     /**
      * 实现命令：LPUSH key value，将一个值 value插入到列表 key的表头
